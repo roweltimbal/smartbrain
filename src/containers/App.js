@@ -33,8 +33,31 @@ class App extends Component {
       appId: "faceDetector",
       userId: "oj9pqtu0yr0u",
       displayImage: false,
+      box: {},
     };
   }
+
+  // Helper functions
+  calculateFaceLocation = (data) => {
+    const clarifaiFace =
+      data.outputs[0].data.regions[0].region_info.bounding_box;
+    const image = document.getElementById("inputimage");
+    const width = Number(image.width);
+    const height = Number(image.height);
+    // to use the bounding boxes in reference to the image. Think of it as dots
+    return {
+      leftCol: clarifaiFace.left_col * width,
+      topRow: clarifaiFace.top_row * height,
+      rightCol: width - clarifaiFace.right_col * width,
+      bottomRow: height - clarifaiFace.bottom_row * height,
+    };
+  };
+
+  displayFaceBox = (box) => {
+    this.setState({ box: box }, () => {
+      console.log(this.state.box);
+    });
+  };
 
   // Listening for the textfield and button event
   onInputChange = (event) => {
@@ -92,9 +115,9 @@ class App extends Component {
       requestOptions
     )
       .then((response) => response.json())
-      .then((result) =>
-        console.log(result.outputs[0].data.regions[0].region_info.bounding_box)
-      )
+      .then((result) => {
+        this.displayFaceBox(this.calculateFaceLocation(result));
+      })
       .catch((error) => console.log("error", error));
   };
 
@@ -110,6 +133,7 @@ class App extends Component {
           onButtonSubmit={this.onButtonSubmit}
         />
         <FaceRecognition
+          box={this.state.box}
           imageUrl={this.state.imageUrl}
           displayImage={this.state.displayImage}
         />
