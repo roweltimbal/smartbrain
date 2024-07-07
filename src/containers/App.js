@@ -3,6 +3,8 @@ import Navigation from "../components/Navigation/Navigation";
 import Logo from "../components/Logo/Logo";
 import ImageLinkForm from "../components/ImageLinkForm/ImageLinkForm";
 import Rank from "../components/Rank/Rank";
+import Signin from "../components/Signin/Signin";
+import Register from "../components/Register/Register";
 import "./App.css";
 import ParticlesBg from "particles-bg";
 import FaceRecognition from "../components/FaceRecognition/FaceRecognition";
@@ -34,8 +36,19 @@ class App extends Component {
       userId: "oj9pqtu0yr0u",
       displayImage: false,
       box: {},
+      route: "signin",
+      isSignedIn: false,
     };
   }
+  // Routing Functions
+  onRouteChange = (route) => {
+    if (route === "signin") {
+      this.setState({ isSignedIn: false });
+    } else if (route === "home") {
+      this.setState({ isSignedIn: true });
+    }
+    this.setState({ route: route });
+  };
 
   // Helper functions
   calculateFaceLocation = (data) => {
@@ -70,6 +83,7 @@ class App extends Component {
     this.setState({ displayImage: true });
   };
 
+  // API return function
   returnRequestOptions = () => {
     // Your PAT (Personal Access Token) can be found in the Account's Security section
     const PAT = this.state.key;
@@ -125,18 +139,29 @@ class App extends Component {
     return (
       <div className="App">
         <ParticlesBg color={["#E3F6FF"]} type="cobweb" num={60} bg={true} />
-        <Navigation />
-        <Logo />
-        <Rank />
-        <ImageLinkForm
-          onInputChange={this.onInputChange}
-          onButtonSubmit={this.onButtonSubmit}
+        <Navigation
+          onRouteChange={this.onRouteChange}
+          isSignedIn={this.state.isSignedIn}
         />
-        <FaceRecognition
-          box={this.state.box}
-          imageUrl={this.state.imageUrl}
-          displayImage={this.state.displayImage}
-        />
+        {this.state.route === "home" ? (
+          <div>
+            <Logo />
+            <Rank />
+            <ImageLinkForm
+              onInputChange={this.onInputChange}
+              onButtonSubmit={this.onButtonSubmit}
+            />
+            <FaceRecognition
+              box={this.state.box}
+              imageUrl={this.state.imageUrl}
+              displayImage={this.state.displayImage}
+            />
+          </div>
+        ) : this.state.route === "signin" ? (
+          <Signin onRouteChange={this.onRouteChange} />
+        ) : (
+          <Register onRouteChange={this.onRouteChange} />
+        )}
       </div>
     );
   }
