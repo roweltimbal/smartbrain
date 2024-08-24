@@ -9,22 +9,6 @@ import "./App.css";
 import ParticlesBg from "particles-bg";
 import FaceRecognition from "../components/FaceRecognition/FaceRecognition";
 
-// function App() {
-//   return (
-//     <div className="App">
-//       <ParticlesBg color={["#E3F6FF"]} type="cobweb" num={60} bg={true} />
-//       <Navigation />
-//       <Logo />
-//       <Rank />
-//       <ImageLinkForm />
-//       {/* <FaceRecognition /> */}
-//     </div>
-//   );
-// }
-// key: "fb5f40615e3441c2890508abb50e1d81",
-//       appId: "faceDetector",
-//       userId: "oj9pqtu0yr0u",
-
 class App extends Component {
   constructor() {
     super();
@@ -38,8 +22,29 @@ class App extends Component {
       box: {},
       route: "signin",
       isSignedIn: false,
+      user: {
+        id: "",
+        name: "",
+        email: "",
+        entries: 0,
+        joined: "",
+      },
     };
   }
+
+  // loading user
+  loadUser = (data) => {
+    this.setState({
+      user: {
+        id: data.id,
+        name: data.name,
+        email: data.email,
+        entries: data.entries,
+        joined: data.joined,
+      },
+    });
+  };
+
   // Routing Functions
   onRouteChange = (route) => {
     if (route === "signin") {
@@ -130,6 +135,25 @@ class App extends Component {
     )
       .then((response) => response.json())
       .then((result) => {
+        if (result) {
+          fetch("http://localhost:5000/image", {
+            method: "put",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              id: this.state.user.id,
+            }),
+          })
+            .then((res) => res.json())
+            .then((count) => {
+              this.setState({
+                user: {
+                  ...this.state.user,
+                  entries: count,
+                },
+              });
+            })
+            .catch((error) => console.log("Error updating entries: ", error));
+        }
         this.displayFaceBox(this.calculateFaceLocation(result));
       })
       .catch((error) => console.log("error", error));
@@ -146,7 +170,10 @@ class App extends Component {
         {this.state.route === "home" ? (
           <div>
             <Logo />
-            <Rank />
+            <Rank
+              name={this.state.user.name}
+              entries={this.state.user.entries}
+            />
             <ImageLinkForm
               onInputChange={this.onInputChange}
               onButtonSubmit={this.onButtonSubmit}
@@ -158,9 +185,12 @@ class App extends Component {
             />
           </div>
         ) : this.state.route === "signin" ? (
-          <Signin onRouteChange={this.onRouteChange} />
+          <Signin loadUser={this.loadUser} onRouteChange={this.onRouteChange} />
         ) : (
-          <Register onRouteChange={this.onRouteChange} />
+          <Register
+            loadUser={this.loadUser}
+            onRouteChange={this.onRouteChange}
+          />
         )}
       </div>
     );
