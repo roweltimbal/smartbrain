@@ -9,27 +9,28 @@ import "./App.css";
 import ParticlesBg from "particles-bg";
 import FaceRecognition from "../components/FaceRecognition/FaceRecognition";
 
+const initialState = {
+  input: "",
+  imageUrl: "",
+  appId: "faceDetector",
+  userId: "oj9pqtu0yr0u",
+  displayImage: false,
+  box: {},
+  route: "signin",
+  isSignedIn: false,
+  user: {
+    id: "",
+    name: "",
+    email: "",
+    entries: 0,
+    joined: "",
+  },
+};
+
 class App extends Component {
   constructor() {
     super();
-    this.state = {
-      input: "",
-      imageUrl: "",
-      key: "fb5f40615e3441c2890508abb50e1d81",
-      appId: "faceDetector",
-      userId: "oj9pqtu0yr0u",
-      displayImage: false,
-      box: {},
-      route: "signin",
-      isSignedIn: false,
-      user: {
-        id: "",
-        name: "",
-        email: "",
-        entries: 0,
-        joined: "",
-      },
-    };
+    this.state = initialState;
   }
 
   // loading user
@@ -47,8 +48,8 @@ class App extends Component {
 
   // Routing Functions
   onRouteChange = (route) => {
-    if (route === "signin") {
-      this.setState({ isSignedIn: false });
+    if (route === "signout") {
+      this.setState(initialState);
     } else if (route === "home") {
       this.setState({ isSignedIn: true });
     }
@@ -72,9 +73,7 @@ class App extends Component {
   };
 
   displayFaceBox = (box) => {
-    this.setState({ box: box }, () => {
-      console.log(this.state.box);
-    });
+    this.setState({ box: box });
   };
 
   // Listening for the textfield and button event
@@ -91,13 +90,13 @@ class App extends Component {
   // API return function
   returnRequestOptions = () => {
     // Your PAT (Personal Access Token) can be found in the Account's Security section
-    const PAT = this.state.key;
+    // const PAT = this.state.key;
     // Specify the correct user_id/app_id pairings
     // Since you're making inferences outside your app's scope
     const USER_ID = this.state.userId;
     const APP_ID = this.state.appId;
     // Change these to whatever model and image URL you want to use
-    const MODEL_ID = "face-detection";
+    // const MODEL_ID = "face-detection";
     const IMAGE_URL = this.state.input;
 
     ///////////////////////////////////////////////////////////////////////////////////
@@ -124,14 +123,21 @@ class App extends Component {
       method: "POST",
       headers: {
         Accept: "application/json",
-        Authorization: "Key " + PAT,
       },
       body: raw,
     };
 
     fetch(
-      "https://api.clarifai.com/v2/models/" + MODEL_ID + "/outputs",
-      requestOptions
+      // "https://api.clarifai.com/v2/models/" + MODEL_ID + "/outputs",
+      // requestOptions
+      "http://localhost:5000/imageUrl",
+      {
+        method: "post",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          input: requestOptions,
+        }),
+      }
     )
       .then((response) => response.json())
       .then((result) => {
