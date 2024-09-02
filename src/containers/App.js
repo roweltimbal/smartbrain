@@ -130,7 +130,7 @@ class App extends Component {
     fetch(
       // "https://api.clarifai.com/v2/models/" + MODEL_ID + "/outputs",
       // requestOptions
-      "http://localhost:5000/imageUrl",
+      "https://smartbrainbackend-9tg1.onrender.com/imageUrl",
       {
         method: "post",
         headers: { "Content-Type": "application/json" },
@@ -142,7 +142,7 @@ class App extends Component {
       .then((response) => response.json())
       .then((result) => {
         if (result) {
-          fetch("http://localhost:5000/image", {
+          fetch("https://smartbrainbackend-9tg1.onrender.com/image", {
             method: "put",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({

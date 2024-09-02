@@ -25,7 +25,7 @@ class Register extends React.Component {
     if (!this.state.email || !this.state.name || !this.state.password) {
       return alert("Please complete the form");
     }
-    fetch("http://localhost:5000/register", {
+    fetch("https://smartbrainbackend-9tg1.onrender.com/register", {
       method: "post",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
